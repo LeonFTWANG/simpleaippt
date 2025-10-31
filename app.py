@@ -2,14 +2,13 @@ import os
 import time
 import json
 import traceback
-from flask import Flask, request, jsonify, send_file, render_template, Response, stream_with_context
+from flask import Flask, request, jsonify, send_file, render_template, Response, stream_with_context, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from config import Config
 from ai_service import AIService
 from ppt_generator import generate_ppt
-
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -29,6 +28,9 @@ def allowed_file(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(app.static_folder, 'favicon.ico',mimetype='image/favicon.icon')
 
 @app.route('/api/test', methods=['GET'])
 def test_api():
