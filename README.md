@@ -66,6 +66,8 @@ AI_MODEL=deepseek-chat
 4. 等待上传完成
 
 ### 5.Markdown生成ppt语法
+```markdown
 ## 章节标题        ← 生成章节页（大标题）
 ### 小标题         ← 生成内容页标题
 - 要点内容         ← 生成内容要点
+```
