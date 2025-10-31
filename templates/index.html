@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI PPT 生成器</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+	        <!-- 提示信息 -->
+        <div class="card info-card">
+            <h3>使用说明</h3>
+            <ul>
+                <li><strong>首次使用</strong> - 请先配置API_KEY</li>
+            </ul>
+        </div>
+    <div class="container">
+        <header class="header">
+            <h1>AI PPT 生成器</h1>
+            
+            <!-- API配置 -->
+            <div class="api-status" id="api-status">
+                <span class="status-icon" id="status-icon">⚙️</span>
+                <span id="api-status-text">检查中...</span>
+                <button class="btn-config" onclick="toggleApiConfig()">配置API</button>
+            </div>
+        </header>
+        
+        <!-- API配置弹窗 -->
+        <div class="api-modal" id="api-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>API 配置</h2>
+                    <button class="close-btn" onclick="toggleApiConfig()">✕</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="api-key-input">
+                            <strong>API Key</strong>
+                            <span style="color: #999; font-size: 14px; margin-left: 10px;">
+                                (必填，用于AI内容生成)
+                            </span>
+                        </label>
+                        <input type="password" 
+                               id="api-key-input" 
+                               class="api-input"
+                               placeholder="输入您的 API Key，例如：sk-..." />
+                        <button class="btn-toggle-password" onclick="togglePasswordVisibility()">
+                            显示/隐藏
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="api-base-input">
+                            <strong>API Base URL</strong>
+                            <span style="color: #999; font-size: 14px; margin-left: 10px;">
+                                (可选，使用第三方API时填写)
+                            </span>
+                        </label>
+                        <input type="text" 
+                               id="api-base-input" 
+                               class="api-input"
+                               placeholder="例如：https://api.deepseek.com" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="api-model-input">
+                            <strong>AI 模型</strong>
+                            <span style="color: #999; font-size: 14px; margin-left: 10px;">
+                                (可选，默认为 deepseek-chat)
+                            </span>
+                        </label>
+                        <input type="text" 
+                               id="api-model-input" 
+                               class="api-input"
+                               placeholder="例如：deepseek-chat" />
+                    </div>
+
+                    <div class="api-tips">
+                        <h4>配置说明：</h4>
+                        <ul>
+                            <li><strong>API Key</strong>：从 AI 服务商获取（如 DeepSeek、OpenAI 等）</li>
+                            <li><strong>API Base URL</strong>：默认使用 DeepSeek，使用其他服务商时需要填写</li>
+                            <li><strong>AI 模型</strong>：默认为 deepseek-chat，可以根据需要修改</li>
+                            <li>配置保存后，请刷新页面使其生效</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="toggleApiConfig()">取消</button>
+                    <button class="btn btn-primary" onclick="saveApiConfig()">保存配置</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="steps">
+            <div class="step active clickable" data-step="1" onclick="switchToStep(1)" title="点击查看大纲">
+                <div class="step-number">1</div>
+                <div class="step-label">生成大纲</div>
+            </div>
+            <div class="step clickable" data-step="2" onclick="switchToStep(2)" title="点击查看内容">
+                <div class="step-number">2</div>
+                <div class="step-label">生成内容</div>
+            </div>
+            <div class="step clickable" data-step="3" onclick="switchToStep(3)" title="点击生成PPT">
+                <div class="step-number">3</div>
+                <div class="step-label">生成PPT</div>
+            </div>
+        </div>
+
+        <!-- 步骤1: 生成大纲 -->
+        <div class="card" id="step1">
+            <h2>第一步：生成PPT大纲</h2>
+            <div class="upload-md-section">
+                <h3 style="font-size: 16px; margin-bottom: 15px; color: #555;">
+                    加载已有的Markdown文件
+                </h3>
+                <div class="alert alert-info" style="margin-bottom: 15px; padding: 10px; background: #f0f7ff; border-left: 4px solid #2196F3; border-radius: 4px; font-size: 14px;">
+                    <strong>提示：</strong>如果您已有准备好的Markdown大纲文件，可以直接上传使用
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <input type="file" 
+                           id="md-file-input" 
+                           accept=".md,.markdown,.txt" 
+                           style="display: none;" 
+                           onchange="handleMarkdownFileUpload(event)">
+                    <button class="btn btn-secondary" onclick="document.getElementById('md-file-input').click()">
+                        选择 Markdown 文件
+                    </button>
+                    <span id="md-file-name" style="color: #666; font-size: 14px;"></span>
+                </div>
+            </div>
+            
+            <div class="alert alert-info" style="margin-bottom: 20px; padding: 12px; background: #e3f2fd; border-left: 4px solid #2196F3; border-radius: 4px;">
+                <strong>提示：</strong>输入您想要制作的PPT主题，AI将为您生成结构化的大纲<br>
+                <strong>导航：</strong>点击上方步骤数字可随时切换查看已生成的内容
+            </div>
+            
+            <div class="form-group">
+                <label for="topic">PPT主题</label>
+                <input type="text" id="topic" placeholder="例如：人工智能在教育领域的应用" />
+            </div>
+
+            <div class="form-group">
+                <label for="chapters">章节数量</label>
+                <input type="number" id="chapters" value="5" min="3" max="10" />
+            </div>
+
+            <button class="btn btn-primary" onclick="generateOutline(event)">
+                <span class="btn-text">生成大纲</span>
+                <span class="btn-loading" style="display: none;">生成中...</span>
+            </button>
+
+
+            <div id="outline-result" class="result-box" style="display: none;">
+                <h3>生成的大纲：<span style="font-size: 14px; color: #666; font-weight: normal; margin-left: 10px;">✏️ 可以直接编辑修改</span></h3>
+                <div style="text-align: right; margin-bottom: 10px;">
+                    <button class="btn btn-secondary btn-small" onclick="copyOutline()">
+                        📋 一键复制大纲
+                    </button>
+                </div>
+                <textarea class="markdown-editor" id="outline-content" placeholder="大纲内容将显示在这里，您可以直接编辑..." spellcheck="false"></textarea>
+                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    <button class="btn btn-success" onclick="goToStep2()">下一步：生成详细内容</button>
+                    <button class="btn btn-primary" onclick="skipToStep3()">跳过，直接生成PPT</button>
+                </div>
+                <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; font-size: 14px; color: #856404;">
+                    <strong>提示：</strong>大纲内容可以直接编辑修改，生成PPT时会使用您编辑后的内容
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤2: 生成详细内容 -->
+        <div class="card" id="step2" style="display: none;">
+            <h2>第二步：生成详细内容</h2>
+            
+            <div class="alert alert-info">
+                <strong>提示：</strong>将根据大纲为每个要点生成详细说明，内容充分展开<br>
+                <strong>建议：</strong>如果直接使用大纲生成PPT已经足够，可以跳过此步骤
+            </div>
+
+            <button class="btn btn-primary" onclick="generateContent(event)">
+                <span class="btn-text">生成详细内容</span>
+                <span class="btn-loading" style="display: none;">生成中...</span>
+            </button>
+
+            <div id="content-result" class="result-box" style="display: none;">
+                <h3>生成的详细内容：<span style="font-size: 14px; color: #666; font-weight: normal; margin-left: 10px;">✏️ 可以直接编辑修改</span></h3>
+                <div style="text-align: right; margin-bottom: 10px;">
+                    <button class="btn btn-secondary btn-small" onclick="copyContent()">
+                        一键复制内容
+                    </button>
+                </div>
+                <textarea class="markdown-editor" id="content-content" placeholder="详细内容将显示在这里，您可以直接编辑..." spellcheck="false"></textarea>
+                <button class="btn btn-success" onclick="goToStep3()">下一步：生成PPT文件</button>
+                <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; font-size: 14px; color: #856404;">
+                    <strong>提示：</strong>内容可以直接编辑修改，生成PPT时会使用您编辑后的内容
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤3: 生成PPT -->
+        <div class="card" id="step3" style="display: none;">
+            <h2>第三步：生成PPT文件</h2>
+            
+            <div class="form-group">
+                <label for="ppt-title">PPT标题</label>
+                <input type="text" id="ppt-title" placeholder="将使用主题作为标题" />
+            </div>
+
+            <div class="form-group">
+                <label for="ppt-subtitle">PPT副标题（可选）</label>
+                <input type="text" id="ppt-subtitle" placeholder="例如：2025年度报告" />
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="use-template" onchange="toggleTemplateSection()" />
+                    使用自定义模板
+                </label>
+            </div>
+
+            <div id="template-section" style="display: none;">
+                <div class="form-group">
+                    <label>选择已上传的模板</label>
+                    <select id="template-select">
+                        <option value="">上传新模板...</option>
+                    </select>
+                </div>
+
+                <div id="upload-section">
+                    <div class="form-group">
+                        <label for="template-file">上传模板文件</label>
+                        <input type="file" id="template-file" accept=".pptx" onchange="handleTemplateSelect()" />
+                        <small>支持 .pptx 格式，最大 50MB</small>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="uploadTemplate(event)">
+                        <span class="btn-text">上传模板</span>
+                        <span class="btn-loading" style="display: none;">上传中...</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>PPT内容来源</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="content-source" value="outline" checked />
+                        使用大纲作为内容（PowerPoint！！！）
+                    </label>
+                    <label>
+                        <input type="radio" name="content-source" value="content" />
+                        使用详细内容（不要我就要满满当当的~）
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="generatePPT(event)">
+                <span class="btn-text">生成PPT文件</span>
+                <span class="btn-loading" style="display: none;">生成中...</span>
+            </button>
+
+            <div id="ppt-result" class="result-box" style="display: none;">
+                <div class="success-message">
+                    <h3>✅ PPT 生成啦！</h3>
+                    <p id="ppt-info"></p>
+                    <a id="download-link" class="btn btn-success btn-large" download>
+                        下载 PPT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
+
