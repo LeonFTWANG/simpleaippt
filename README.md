@@ -1,5 +1,5 @@
 ## 📖 使用教程
-本项目开箱即用，ppt模板请参考内置的ppt模板（\uploads\custom_templates），建议使用大纲做为ppt的内容，内容太多会造成ppt内容拥挤，也违背ppt的初衷了
+本项目开箱即用，ppt不能使用动画，否则可能生成的ppt会提示损坏，使用ppt模板请提前设置好ppt的母版，详情请参考文件内置的ppt模板（\uploads\custom_templates），建议使用大纲做为ppt的内容，内容太多会造成ppt内容拥挤，也违背ppt的初衷了
 
 ### 1. 配置环境
 
@@ -64,4 +64,3 @@ AI_MODEL=deepseek-chat
 2. 选择已上传的模板，或点击"上传模板"
 3. 选择你的 .pptx 文件
 4. 等待上传完成
-注意！！！---ppt不能使用动画，否则可能生成的ppt会提示损坏，使用ppt模板请提前设置好ppt的母版，详情请参考文件内置的ppt模板（\uploads\custom_templates）
