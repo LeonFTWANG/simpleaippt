@@ -53,7 +53,7 @@ AI_MODEL=deepseek-chat
 - DeepSeek：https://platform.deepseek.com/api_keys
 - 目前只测试了deepsek的apikey，需要使用其他的请看相关的官方文档
 
-#### 4. 模板设置
+### 4. 模板设置
 
 **选项 A：使用默认模板**
 - 不勾选"使用自定义模板"
@@ -64,3 +64,8 @@ AI_MODEL=deepseek-chat
 2. 选择已上传的模板，或点击"上传模板"
 3. 选择你的 .pptx 文件
 4. 等待上传完成
+
+### 5.Markdown生成ppt语法
+## 章节标题        ← 生成章节页（大标题）
+### 小标题         ← 生成内容页标题
+- 要点内容         ← 生成内容要点
