@@ -192,7 +192,7 @@ class PPTGenerator:
         
         if not content_placeholder:
             for shape in slide.placeholders:
-                if hasattr(shape, 'text_frame') and shape.placeholder_format.type != 1:  # 排除标题
+                if hasattr(shape, 'text_frame') and shape.placeholder_format.type != 1:  
                     content_placeholder = shape
                     break
         
